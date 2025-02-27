@@ -58,27 +58,29 @@ export default function NoMessage() {
     url.searchParams.set("lang", language);
 
     try {
-      // Get shortened URL
       const response = await fetch("https://preseneti.me/shorten", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ longUrl: url.toString() }), // Changed from 'url' to 'longUrl'
+        body: JSON.stringify({ longUrl: url.toString() }),
       });
 
       if (!response.ok) {
         throw new Error("Failed to shorten URL");
       }
 
-      const data = await response.json(); // Changed from text() to json()
-      const shortenedUrl = data.shortUrl; // Extract shortUrl from response
+      const data = await response.json();
+      const shortenedUrl = data.shortUrl;
 
-      console.log(shortenedUrl); // Print shortened URL to console
-
-      // Copy shortened URL to clipboard
-      await navigator.clipboard.writeText(shortenedUrl);
-      showToast(`🔗 Copied for ${inputName} ✨`, shortenedUrl);
+      navigator.clipboard
+        .writeText(shortenedUrl)
+        .then(() => {
+          showToast(`🔗 Copied for ${inputName} ✨`, shortenedUrl);
+        })
+        .catch(() => {
+          showToast("Failed to copy 😔", shortenedUrl);
+        });
     } catch (error) {
       showToast("Failed to create share link 😔");
       console.error("Error:", error);
