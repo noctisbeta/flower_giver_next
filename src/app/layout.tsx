@@ -16,10 +16,6 @@ export const metadata: Metadata = {
   title: "Flower Giver",
   description: "Send a personalized virtual flower to someone special",
 
-  icons: {
-    icon: { url: "/favicon.ico", sizes: "32x32" },
-  },
-
   openGraph: {
     title: "Share a Flower",
     description: "Send a personalized flower message to someone special",
@@ -59,9 +55,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Explicit favicon links */}
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
