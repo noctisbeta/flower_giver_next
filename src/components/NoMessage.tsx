@@ -81,7 +81,7 @@ export default function NoMessage() {
     url.searchParams.set("lang", language);
 
     try {
-      const response = await fetch("https://preseneti.me/shorten", {
+      const response = await fetch("https://api.preseneti.me/shorten", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
