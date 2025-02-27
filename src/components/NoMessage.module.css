@@ -71,8 +71,9 @@
   cursor: pointer;
   text-align: center;
   text-align-last: center;
-  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji",
-    sans-serif;
+  font-family: "Twemoji Mozilla", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+  font-variant-emoji: emoji;
 }
 
 .langSelect::-webkit-details-marker {
