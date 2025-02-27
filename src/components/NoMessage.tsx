@@ -93,6 +93,7 @@ export default function NoMessage() {
 
   async function writeClipboardText(text: string) {
     try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       await navigator.clipboard.writeText(text);
     } catch (err) {
       console.error("Failed to write clipboard text:", err);
