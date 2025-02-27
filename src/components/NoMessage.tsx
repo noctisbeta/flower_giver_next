@@ -74,30 +74,16 @@ export default function NoMessage() {
       const shortenedUrl = data.shortUrl;
 
       try {
-        if (navigator.clipboard) {
-          await navigator.clipboard.writeText(shortenedUrl);
-          showToast(`🔗 Copied for ${inputName} ✨`, shortenedUrl);
-        } else if (navigator.share) {
-          // Use Share API as fallback on mobile
-          await navigator.share({
-            title: "Share Flower",
-            text: `Flower message from ${inputName}`,
-            url: shortenedUrl,
-          });
-          console.log("Shared successfully");
-          showToast(`🔗 Share for ${inputName} ✨`, shortenedUrl);
-        } else {
-          // Last resort fallback
-          const textArea = document.createElement("textarea");
-          textArea.value = shortenedUrl;
-          textArea.style.position = "fixed";
-          document.body.appendChild(textArea);
-          textArea.focus();
-          textArea.select();
-          document.execCommand("copy");
-          document.body.removeChild(textArea);
-          showToast(`🔗 Copied for ${inputName} ✨`, shortenedUrl);
-        }
+        // Last resort fallback
+        const textArea = document.createElement("textarea");
+        textArea.value = shortenedUrl;
+        textArea.style.position = "fixed";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        showToast(`🔗 Copied for ${inputName} ✨`, shortenedUrl);
       } catch (error) {
         showToast("Failed to copy 😔", shortenedUrl);
         console.error("Clipboard/Share error:", error);
