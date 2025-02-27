@@ -74,15 +74,7 @@ export default function NoMessage() {
       const shortenedUrl = data.shortUrl;
 
       try {
-        // Last resort fallback
-        const textArea = document.createElement("textarea");
-        textArea.value = shortenedUrl;
-        textArea.style.position = "fixed";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textArea);
+        await navigator.clipboard.writeText(shortenedUrl);
         showToast(`🔗 Copied for ${inputName} ✨`, shortenedUrl);
       } catch (error) {
         showToast("Failed to copy 😔", shortenedUrl);
@@ -93,6 +85,14 @@ export default function NoMessage() {
       console.error("Error:", error);
     }
   };
+
+  async function writeClipboardText(text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.error("Failed to write clipboard text:", err);
+    }
+  }
 
   return (
     <div className={styles.formContainer}>
@@ -125,7 +125,7 @@ export default function NoMessage() {
           </select>
         </div>
         <button
-          onClick={() => void shareFlower()}
+          onClick={() => writeClipboardText("testek")}
           className={styles.shareButton}
         >
           Send Flower
