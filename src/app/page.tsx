@@ -5,9 +5,10 @@ import FlowerLoader from "@/components/FlowerLoader";
 import Message from "@/components/Message";
 import NoMessage from "@/components/NoMessage";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-export default function Home() {
+// Content component that uses useSearchParams
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const name = searchParams.get("name");
@@ -86,5 +87,14 @@ export default function Home() {
         </>
       )}
     </div>
+  );
+}
+
+// Main component with Suspense
+export default function Home() {
+  return (
+    <Suspense fallback={<FlowerLoader />}>
+      <HomeContent />
+    </Suspense>
   );
 }
