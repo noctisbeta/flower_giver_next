@@ -1,101 +1,91 @@
-import Image from "next/image";
+"use client";
+
+import Flower from "@/components/Flower";
+import FlowerLoader from "@/components/FlowerLoader";
+import Message from "@/components/Message";
+import NoMessage from "@/components/NoMessage";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const name = searchParams.get("name");
+  const lang = searchParams.get("lang");
+  const [messageText, setMessageText] = useState("");
+  const [loading, setLoading] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  const showMessage = name && lang;
+
+  // Redirect to root if invalid parameters are detected in URL
+  useEffect(() => {
+    if (searchParams.toString() && !showMessage) {
+      router.push("/");
+    }
+  }, [searchParams, showMessage, router]);
+
+  useEffect(() => {
+    if (showMessage) {
+      setLoading(true);
+
+      fetch("/api/generate-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, language: lang }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.message) {
+            setMessageText(data.message);
+          } else {
+            // Fallback to default messages
+            setMessageText(getDefaultMessage(name as string, lang as string));
+          }
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching generated message:", error);
+          setMessageText(getDefaultMessage(name as string, lang as string));
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
+  }, [name, lang, showMessage]);
+
+  // Default messages as fallback
+  const getDefaultMessage = (name: string, language: string) => {
+    const messages: { [key: string]: string } = {
+      en: `Here's a flower for you, [NAME]${name}[/NAME]!`,
+      es: `¡Aquí tienes una flor, [NAME]${name}[/NAME]!`,
+      fr: `Voici une fleur pour toi, [NAME]${name}[/NAME]!`,
+      de: `Hier ist eine Blume für dich, [NAME]${name}[/NAME]!`,
+      sl: `Tukaj je roža zate, [NAME]${name}[/NAME]!`,
+      ja: `[NAME]${name}[/NAME]、あなたに花をどうぞ！`,
+    };
+
+    return messages[language] || messages.en;
+  };
+
+  return (
+    <div className="container">
+      {showMessage ? (
+        loading ? (
+          <FlowerLoader />
+        ) : (
+          <>
+            <Flower />
+            <Message message={messageText} />
+          </>
+        )
+      ) : (
+        <>
+          <Flower />
+          <NoMessage />
+        </>
+      )}
     </div>
   );
 }
