@@ -22,8 +22,10 @@ export default function NoMessage() {
   };
 
   const showToast = useCallback(
-    (message: string) => {
+    async (message: string) => {
       if (!toastRef.current) return;
+
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       const toast = toastRef.current;
 
