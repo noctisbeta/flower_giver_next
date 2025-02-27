@@ -25,7 +25,7 @@ export default function NoMessage() {
     async (message: string) => {
       if (!toastRef.current) return;
 
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const toast = toastRef.current;
 
