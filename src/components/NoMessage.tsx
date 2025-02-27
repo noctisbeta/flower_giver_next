@@ -1,12 +1,18 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./NoMessage.module.css";
 
 export default function NoMessage() {
   const [name, setName] = useState("");
   const [language, setLanguage] = useState("en");
   const toastRef = useRef<HTMLDivElement>(null);
+  const [shortenedUrl, setShortenedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!shortenedUrl) return;
+    showToast("Link ready 🌸");
+  }, [shortenedUrl]);
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
@@ -15,35 +21,32 @@ export default function NoMessage() {
     }
   };
 
-  const showToast = (message: string, url?: string) => {
-    if (!toastRef.current) return;
+  const showToast = useCallback(
+    (message: string) => {
+      if (!toastRef.current) return;
 
-    const toast = toastRef.current;
+      const toast = toastRef.current;
 
-    if (url) {
       toast.innerHTML = `
         ${message}
         <button class="${styles.toastAction}" id="toast-button">
-          🌸 GO
+          🔗 COPY 
         </button>
       `;
 
-      setTimeout(() => {
-        const toastButton = document.getElementById("toast-button");
-        if (toastButton) {
-          toastButton.addEventListener("click", () => {
-            const fullUrl = url.startsWith("http") ? url : `https://${url}`;
-            window.location.href = fullUrl;
-          });
-        }
-      }, 0);
-    } else {
-      toast.textContent = message;
-    }
+      const toastButton = document.getElementById("toast-button");
+      toastButton!.addEventListener("click", () => {
+        const fullUrl = shortenedUrl!.startsWith("http")
+          ? shortenedUrl
+          : `https://${shortenedUrl}`;
+        void writeClipboardText(fullUrl!);
+      });
 
-    toast.classList.add(styles.show);
-    setTimeout(() => toast.classList.remove(styles.show), 5000);
-  };
+      toast.classList.add(styles.show);
+      setTimeout(() => toast.classList.remove(styles.show), 5000);
+    },
+    [shortenedUrl]
+  );
 
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -71,15 +74,15 @@ export default function NoMessage() {
       }
 
       const data = await response.json();
-      const shortenedUrl = data.shortUrl;
+      setShortenedUrl(data.shortUrl);
 
-      try {
-        await navigator.clipboard.writeText(shortenedUrl);
-        showToast(`🔗 Copied for ${inputName} ✨`, shortenedUrl);
-      } catch (error) {
-        showToast("Failed to copy 😔", shortenedUrl);
-        console.error("Clipboard/Share error:", error);
-      }
+      // try {
+      //   await navigator.clipboard.writeText(shortenedUrl);
+      //   showToast(`🔗 Copied for ${inputName} ✨`, shortenedUrl);
+      // } catch (error) {
+      //   showToast("Failed to copy 😔", shortenedUrl);
+      //   console.error("Clipboard/Share error:", error);
+      // }
     } catch (error) {
       showToast("Failed to create share link 😔");
       console.error("Error:", error);
@@ -124,10 +127,7 @@ export default function NoMessage() {
             <option value="ja">🇯🇵</option>
           </select>
         </div>
-        <button
-          onClick={() => writeClipboardText("testek")}
-          className={styles.shareButton}
-        >
+        <button onClick={() => shareFlower()} className={styles.shareButton}>
           Send Flower
         </button>
       </div>
