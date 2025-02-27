@@ -13,17 +13,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Share a Flower",
-  description: "Send a personalized flower message to someone special",
-  themeColor: "#ffa7c4",
+  title: "Flower Giver",
+  description: "Send a personalized virtual flower to someone special",
+
+  icons: {
+    icon: { url: "/favicon.ico", sizes: "32x32" },
+  },
+
   openGraph: {
     title: "Share a Flower",
     description: "Send a personalized flower message to someone special",
     images: [
       {
-        url: "https://flowers.fractalfable.com/public/images/preview.png",
+        url: "https://flowers.fractalfable.com/images/preview.png",
         width: 1200,
         height: 630,
+        alt: "Flower Giver - Send a personalized flower message",
       },
     ],
     url: "https://flowers.fractalfable.com",
@@ -34,13 +39,16 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Share a Flower",
     description: "Send a personalized flower message to someone special",
-    images: ["https://flowers.fractalfable.com/public/images/preview.png"],
+    images: ["https://flowers.fractalfable.com/images/preview.png"],
     site: "@fractalfable",
   },
-  viewport: 'width=device-width, initial-scale=1.0, viewport-fit=cover',
-  icons: {
-    icon: '/favicon.ico',
-  },
+};
+
+export const viewport = {
+  themeColor: "#ff69b4",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -50,6 +58,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Explicit favicon links */}
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

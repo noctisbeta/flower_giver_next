@@ -40,7 +40,6 @@ export default function Home() {
           if (data.message) {
             setMessageText(data.message);
           } else {
-            // Fallback to default messages
             setMessageText(getDefaultMessage(name as string, lang as string));
           }
           setLoading(false);
