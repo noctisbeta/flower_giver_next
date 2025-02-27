@@ -9,11 +9,6 @@ export default function NoMessage() {
   const toastRef = useRef<HTMLDivElement>(null);
   const [shortenedUrl, setShortenedUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!shortenedUrl) return;
-    showToast("Link ready 🌸");
-  }, [shortenedUrl]);
-
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.currentTarget.blur();
@@ -22,33 +17,56 @@ export default function NoMessage() {
   };
 
   const showToast = useCallback(
-    async (message: string) => {
+    (message: string) => {
       if (!toastRef.current) return;
-
-      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const toast = toastRef.current;
 
+      const showCopyButton = shortenedUrl && !message.includes("copied");
+
+      const writeClipboardText = async (text: string) => {
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast("✨ Link copied to clipboard!");
+        } catch (err) {
+          console.error("Failed to write clipboard text:", err);
+          showToast("😔 Failed to copy link");
+        }
+      };
+
       toast.innerHTML = `
         ${message}
-        <button class="${styles.toastAction}" id="toast-button">
-          🔗 COPY 
-        </button>
+        ${
+          showCopyButton
+            ? `
+          <button class="${styles.toastAction}" id="toast-button">
+            Copy link ✨
+          </button>
+        `
+            : ""
+        }
       `;
 
-      const toastButton = document.getElementById("toast-button");
-      toastButton!.addEventListener("click", () => {
-        const fullUrl = shortenedUrl!.startsWith("http")
-          ? shortenedUrl
-          : `https://${shortenedUrl}`;
-        void writeClipboardText(fullUrl!);
-      });
+      if (showCopyButton) {
+        const toastButton = document.getElementById("toast-button");
+        toastButton!.addEventListener("click", () => {
+          const fullUrl = shortenedUrl!.startsWith("http")
+            ? shortenedUrl
+            : `https://${shortenedUrl}`;
+          void writeClipboardText(fullUrl!);
+        });
+      }
 
       toast.classList.add(styles.show);
       setTimeout(() => toast.classList.remove(styles.show), 5000);
     },
     [shortenedUrl]
   );
+
+  useEffect(() => {
+    if (!shortenedUrl) return;
+    showToast("Link ready 🌸");
+  }, [shortenedUrl, showToast]);
 
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -77,28 +95,11 @@ export default function NoMessage() {
 
       const data = await response.json();
       setShortenedUrl(data.shortUrl);
-
-      // try {
-      //   await navigator.clipboard.writeText(shortenedUrl);
-      //   showToast(`🔗 Copied for ${inputName} ✨`, shortenedUrl);
-      // } catch (error) {
-      //   showToast("Failed to copy 😔", shortenedUrl);
-      //   console.error("Clipboard/Share error:", error);
-      // }
     } catch (error) {
       showToast("Failed to create share link 😔");
       console.error("Error:", error);
     }
   };
-
-  async function writeClipboardText(text: string) {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      await navigator.clipboard.writeText(text);
-    } catch (err) {
-      console.error("Failed to write clipboard text:", err);
-    }
-  }
 
   return (
     <div className={styles.formContainer}>

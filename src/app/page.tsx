@@ -14,46 +14,46 @@ function HomeContent() {
   const name = searchParams.get("name");
   const lang = searchParams.get("lang");
   const [messageText, setMessageText] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Initialize as true
 
   const showMessage = name && lang;
 
-  // Redirect to root if invalid parameters are detected in URL
   useEffect(() => {
     if (searchParams.toString() && !showMessage) {
       router.push("/");
+      return;
     }
-  }, [searchParams, showMessage, router]);
 
-  useEffect(() => {
-    if (showMessage) {
-      setLoading(true);
-
-      fetch("/api/generate-message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, language: lang }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.message) {
-            setMessageText(data.message);
-          } else {
-            setMessageText(getDefaultMessage(name as string, lang as string));
-          }
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching generated message:", error);
-          setMessageText(getDefaultMessage(name as string, lang as string));
-          setLoading(false);
-        });
-    } else {
+    if (!showMessage) {
       setLoading(false);
+      return;
     }
-  }, [name, lang, showMessage]);
+
+    fetch("/api/generate-message", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, language: lang }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setMessageText(
+          data.message || getDefaultMessage(name as string, lang as string)
+        );
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching generated message:", error);
+        setMessageText(getDefaultMessage(name as string, lang as string));
+        setLoading(false);
+      });
+  }, [name, lang, showMessage, router, searchParams]);
+
+  // Early return while loading
+  if (loading) {
+    return <FlowerLoader />;
+  }
 
   // Default messages as fallback
   const getDefaultMessage = (name: string, language: string) => {
@@ -72,14 +72,10 @@ function HomeContent() {
   return (
     <div className="container">
       {showMessage ? (
-        loading ? (
-          <FlowerLoader />
-        ) : (
-          <>
-            <Flower />
-            <Message message={messageText} />
-          </>
-        )
+        <>
+          <Flower />
+          <Message message={messageText} />
+        </>
       ) : (
         <>
           <Flower />
